@@ -16,9 +16,9 @@ end)
 ESX.RegisterUsableItem('cigarett', function(source)
 	local xPlayer = ESX.GetPlayerFromId(source)
 
-    xPlayer.removeInventoryItem('cigarett', 1)
+    	xPlayer.removeInventoryItem('cigarett', 1)
 	TriggerClientEvent('esx_basicneeds:cigarett', source) -- ilk önce animasyon oynatıyoruz // first we play animation
-    Citizen.Wait(8000) -- Birazcık bekliyoruzki kullandığı gibi stress değişmesin, animasyon oynasın // wait a bit so stress won't change instantly and animation can be played
+    	Citizen.Wait(8000) -- Birazcık bekliyoruzki kullandığı gibi stress değişmesin, animasyon oynasın // wait a bit so stress won't change instantly and animation can be played
 	TriggerClientEvent('esx_status:remove', source, 'stress', 250000) -- stres düşüyor // lover stress
 end) -- Bildirim eklemek istemedim // I didn't want to add a notification
 
