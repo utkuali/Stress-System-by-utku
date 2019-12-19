@@ -4,6 +4,11 @@
 	Maksimum stress 1.000.000, açlık ve susuzluk ile aynı mantıkta çalışıyor.
 ]]
 
+--[[ INSTALL GUIDE
+Create a file in your resources folder and name it stress_utk
+place client.lua, __resource.lua, server.lua logs.txt inside stress_utk
+place start stress_utk under esx_status in your server.cfg
+]]
 -- If you want to make /heal command also reset stress then you need to add replace these lines:
 AddEventHandler('esx_basicneeds:resetStatus', function()
 	TriggerEvent('esx_status:set', 'hunger', 500000)
