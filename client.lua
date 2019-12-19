@@ -2,12 +2,97 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+AddEventHandler('esx_status:loaded', function(status)
+    TriggerEvent('esx_status:registerStatus', 'stress', 1000000, '#cadfff', function(status)
+		return false
+	end, function(status)
+		status.add(1)
+	end)
+
+    Citizen.CreateThread(function()
+		while true do
+            Citizen.Wait(1)
+            local ped = PlayerPedId()
+
+            TriggerEvent('esx_status:getStatus', 'stress', function(status)
+				StressVal = status.val
+            end)
+
+            if StressVal == 1000000 then -- max StressVal
+				SetTimecycleModifier("WATER_silty") -- hafif blurlanır ve görüş düşer // a bit blur and vision distance reduce
+				SetTimecycleModifierStrength(1)
+			else
+				ClearExtraTimecycleModifier()
+			end
+
+            if StressVal >= 900000 then
+				local veh = GetVehiclePedIsUsing(ped)
+			  	if IsPedInAnyVehicle(ped) and GetPedInVehicleSeat(veh, -1) == ped then -- eğer oyuncu araçtaysa ve ayrıca o aracı kullanıyorsa // if ped "driving" a vehicle
+					Citizen.Wait(1000)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.15) -- kamera sallanmaları // cam shake
+					TaskVehicleTempAction(ped, veh, 7, 500) -- aracı hafif sola kırma // turn left a bit
+					Citizen.Wait(500)
+					TaskVehicleTempAction(ped, veh, 8, 500) -- aracı hafif sağa kırma // turn right a bit
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.15)
+					Citizen.Wait(500)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.15)
+			  	else
+					Citizen.Wait(1500)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.15)
+			  	end
+			elseif StressVal >= 800000 then
+				local veh = GetVehiclePedIsUsing(ped)
+			  	if IsPedInAnyVehicle(ped) and GetPedInVehicleSeat(veh, -1) == ped then
+					Citizen.Wait(1000)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.10)
+					TaskVehicleTempAction(ped, veh, 7, 300)
+					Citizen.Wait(500)
+					TaskVehicleTempAction(ped, veh, 8, 300)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.10)
+					Citizen.Wait(500)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.10)
+			  	else
+					Citizen.Wait(2000)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.10)
+			  	end
+			elseif StressVal >= 700000 then
+				local veh = GetVehiclePedIsUsing(ped)
+			  	if IsPedInAnyVehicle(ped) and GetPedInVehicleSeat(veh, -1) == ped then
+					Citizen.Wait(1000)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.07)
+					TaskVehicleTempAction(ped, veh, 7, 100)
+					Citizen.Wait(500)
+					TaskVehicleTempAction(ped, veh, 8, 100)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.07)
+					Citizen.Wait(500)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.07)
+			  	else
+					Citizen.Wait(2500)
+					ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.07)
+			  	end
+			elseif StressVal >= 600000 then -- %60 altındayken araç sürüşüne bir etkisi olmuyor // Below ½60 no effect to driving
+				Citizen.Wait(3500) -- sıklık // frequency
+				ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.07) -- efekt // effect
+			elseif StressVal >= 500000 then
+				Citizen.Wait(4500)
+				ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.07)
+			elseif StressVal >= 350000 then
+				Citizen.Wait(5500)
+				ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.05)
+			elseif StressVal >= 200000 then
+				Citizen.Wait(6500)
+				ShakeGameplayCam('MEDIUM_EXPLOSION_SHAKE', 0.03)
+            end
+        end
+    end)
+end)
+
 local ped = PlayerPedId()
 
 Citizen.CreateThread(function()
     while true do
         ped = PlayerPedId()
-		Citizen.Wait(60000)
+		Citizen.Wait(10000)
     end
 end)
 
@@ -15,7 +100,6 @@ Citizen.CreateThread(function() -- Nişan almak // Aiming with a weapon
     while true do
         local status = GetPedConfigFlag(ped, 78, 1)
         if status then
-            print("adding_aim")
             TriggerServerEvent("stress:add", 10000)
             Citizen.Wait(5000)
         else
@@ -28,7 +112,6 @@ Citizen.CreateThread(function() -- Elinde silah tutarken (melee ve patlayıcıla
     while true do
         local status = IsPedArmed(ped, 4)
         if status then
-            print("adding_holdweapon")
             TriggerServerEvent("stress:add", 10000)
             Citizen.Wait(15000)
         else
@@ -42,7 +125,6 @@ Citizen.CreateThread(function() -- Ateş ederken // While shooting
         local status = IsPedShooting(ped)
         local silenced = IsPedCurrentWeaponSilenced(ped)
         if status and not silenced then
-            print("adding_shooting")
             TriggerServerEvent("stress:add", 200000)
             Citizen.Wait(2000)
         else
@@ -56,7 +138,6 @@ Citizen.CreateThread(function() -- Silah, yumruk vs sesi duyarsa / çalışmıyo
         local status = GetPedAlertness(ped)
 
         if status == 1 then
-            print("adding_heard")
             TriggerServerEvent("stress:add", 10000)
             Citizen.Wait(10000)
         else
@@ -69,7 +150,6 @@ Citizen.CreateThread(function() -- Yumruk atmak, yumruk yemek veya yakın mesafe
     while true do
         local status = IsPedInMeleeCombat(ped)
         if status then
-            print("adding_melee")
             TriggerServerEvent("stress:add", 5000)
             Citizen.Wait(5000)
         else
@@ -83,7 +163,6 @@ Citizen.CreateThread(function() -- Can 100(yarı) altındayken BUNU DENEYİN, SO
     while true do
         local amount = (GetEntityHealth(ped)-100)
         if amount <= 50 then
-            print("adding_inj")
             TriggerServerEvent("stress:add", 100000)
             --exports['mythic_notify']:SendAlert("error", "METİN BURAYA // TEXT HERE") -- Örnek mythic notify // Example mythic notify
             Citizen.Wait(60000)
@@ -102,12 +181,10 @@ Citizen.CreateThread(function() -- Olduğun yerde kalmak veya yürümek // Stayi
 
         if status and not status_w and not status_v and not GetPedStealthMovement(ped) then -- durmak // still
             Citizen.Wait(15000)
-            print("removing_still")
             TriggerServerEvent("stress:remove", 30000)
             Citizen.Wait(15000)
         elseif status2 and not status_w and not GetPedStealthMovement(ped) then -- yürümek // walking
             Citizen.Wait(15000)
-            print("removing_walking")
             TriggerServerEvent("stress:remove", 10000)
             Citizen.Wait(15000)
         else
@@ -120,11 +197,9 @@ Citizen.CreateThread(function() -- Paraşütle skydive // Skydiving with parachu
     while true do
         local status = GetPedParachuteState(ped)
         if status == 0 then -- paraşütle dalış // freefall with chute (not falling without it)
-            print("add_freefall")
             TriggerServerEvent("stress:add", 60000)
             Citizen.Wait(5000)
         elseif status == 1 or status == 2 then -- paraşüt açık // opened chute
-            print("add_para")
             TriggerServerEvent("stress:add", 5000)
             Citizen.Wait(5000)
         else
@@ -137,7 +212,6 @@ Citizen.CreateThread(function() -- Gizli moda girmek // Stealth mode
     while true do
         local status = GetPedStealthMovement(ped)
         if status then
-            print("add_stealth")
             TriggerServerEvent("stress:add", 10000)
             Citizen.Wait(8000)
         else
@@ -150,7 +224,6 @@ Citizen.CreateThread(function() -- uyuma animasyonu // Sleeping animation || Bun
     while true do
         local status = IsEntityPlayingAnim(ped, "timetable@tracy@sleep@", "idle_c", 3)
         if status then
-            print("remove_sleep")
             Citizen.Wait(20000)
             TriggerServerEvent("stress:remove", 200000)
         else
@@ -158,4 +231,29 @@ Citizen.CreateThread(function() -- uyuma animasyonu // Sleeping animation || Bun
         end
     end
 end)
--- utku
+
+function AddStress(method, value, seconds)
+    if method:lower() == "instant" then
+        TriggerServerEvent("stress:add", value)
+    elseif method:lower() == "slow" then
+        local count = 0
+        repeat
+            TriggerServerEvent("stress:add", value/seconds)
+            count = count + 1
+            Citizen.Wait(1000)
+        until count == seconds
+    end
+end
+
+function RemoveStress(method, value, seconds)
+    if method:lower() == "instant" then
+        TriggerServerEvent("stress:remove", value)
+    elseif method:lower() == "slow" then
+        local count = 0
+        repeat
+            TriggerServerEvent("stress:remove", value/seconds)
+            count = count + 1
+            Citizen.Wait(1000)
+        until count == seconds
+    end
+end

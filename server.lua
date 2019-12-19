@@ -1,19 +1,23 @@
 ESX = nil
+local log = true -- set this to false if you don't want logging
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-RegisterServerEvent("stress:add") -- stres arttır // add stress
 AddEventHandler("stress:add", function (value)
 	local _source = source
 	local xPlayer = ESX.GetPlayerFromId(_source)
-	local playerid = xPlayer.name
+	local playername = xPlayer.name
 
 	if xPlayer.job.name == "police" then -- Polis ise daha yarı yarıya stress ekleniyor, bu şekilde farklı meslekler ekleyebilirsiniz // if player is a police officer, he/she gaing half the stress, you can add different jobs using same method
-		print("P_addedstress:"..playerid..":"..tostring(value/2/100)) -- printler spame dönüşür çünkü devamlı stres ya azılıyor ya da artıyor // prints will get spammy if you have more than 5 player in server :D
-		TriggerClientEvent("esx_status:add", _source, "stress", value / 2)
+		TriggerClientEvent("esx_status:add", _source, "stress", value / 10)
+		if log then
+			SaveLog("Stress added : "..value, playername)
+		end
 	else
-		print("addedstress:"..playerid..":"..value/100)
 		TriggerClientEvent("esx_status:add", _source, "stress", value)
+		if log then
+			SaveLog("Stress added : "..value, playername)
+		end
 	end
 end)
 
@@ -21,8 +25,21 @@ RegisterServerEvent("stress:remove") -- stres azalttır // remove stress
 AddEventHandler("stress:remove", function (value)
 	local _source = source
 	local xPlayer = ESX.GetPlayerFromId(_source)
-	local playerid = xPlayer.name
+	local playername = xPlayer.name
 
-    print("removedstress:"..playerid..":"..tostring(value/100))
-    TriggerClientEvent("esx_status:remove", _source, "stress", value)
+	TriggerClientEvent("esx_status:remove", _source, "stress", value)
+	if log then
+		SaveLog("Stress removed : "..value, playername)
+	end
 end)
+
+function SaveLog(text, playername)
+	local time = os.date("%d/%m/%Y %X")
+	local name = playername
+	local data = time .. ' : ' .. name .. ' - ' .. text
+
+	local content = LoadResourceFile(GetCurrentResourceName(), "logs.txt")
+	local newContent = content .. '\r\n' .. data
+
+	SaveResourceFile(GetCurrentResourceName(), "logs.txt", newContent, -1)
+end
