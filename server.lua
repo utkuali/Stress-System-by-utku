@@ -11,7 +11,7 @@ AddEventHandler("stress:add", function (value)
 	if xPlayer.job.name == "police" then -- Polis ise daha yarı yarıya stress ekleniyor, bu şekilde farklı meslekler ekleyebilirsiniz // if player is a police officer, he/she gaing half the stress, you can add different jobs using same method
 		TriggerClientEvent("esx_status:add", _source, "stress", value / 10)
 		if log then
-			SaveLog("Stress added : "..value, playername)
+			SaveLog("Stress added : "..value/10, playername)
 		end
 	else
 		TriggerClientEvent("esx_status:add", _source, "stress", value)
