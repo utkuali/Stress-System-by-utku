@@ -3,6 +3,7 @@ local log = true -- set this to false if you don't want logging
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+RegisterServerEvent("stress:add")
 AddEventHandler("stress:add", function (value)
 	local _source = source
 	local xPlayer = ESX.GetPlayerFromId(_source)
