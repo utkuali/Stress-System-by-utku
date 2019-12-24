@@ -5,6 +5,7 @@
 ]]
 
 --[[ INSTALL GUIDE
+esx_status is a dependency
 Create a file in your resources folder and name it stress_utk
 place client.lua, __resource.lua, server.lua logs.txt inside stress_utk
 place start stress_utk under esx_status in your server.cfg
